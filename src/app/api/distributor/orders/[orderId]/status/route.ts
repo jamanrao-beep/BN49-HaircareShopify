@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { verifyInternalApiToken } from "@/lib/auth/internal-api";
 import { addOrderTags } from "@/lib/shopify/orders";
+import { prisma } from "@/lib/db";
 
 export const runtime = "nodejs";
 
@@ -34,6 +35,20 @@ export async function POST(request: Request, context: RouteContext) {
 
   try {
     await addOrderTags(orderId, [`distributor_status:${status}`]);
+
+    const state = status.toUpperCase() as "ACCEPTED" | "OUT_FOR_DELIVERY" | "REJECTED" | "DELIVERED";
+
+    await prisma.distributorOrderStatus.upsert({
+      where: { shopifyOrderId: orderId },
+      create: {
+        shopifyOrderId: orderId,
+        state,
+        region: "global",
+      },
+      update: {
+        state,
+      },
+    });
 
     return NextResponse.json({
       orderId,

@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getOptionalEnv } from "@/lib/env";
 import { addCustomerTags } from "@/lib/shopify/customers";
+import { prisma } from "@/lib/db";
 
 export const runtime = "nodejs";
 
@@ -54,18 +55,34 @@ export async function POST(request: Request) {
   let pendingTagApplied = false;
   let pendingTagWarning: string | undefined;
 
+  let dbApplication;
+  try {
+    dbApplication = await prisma.b2BApplication.create({
+      data: {
+        shopifyCustomerId: application.customerId || null,
+        email: application.email,
+        contactName: application.contactName,
+        businessName: application.businessName,
+        taxId: application.taxId || null,
+        message: application.message || null,
+        status: "PENDING",
+      },
+    });
+  } catch (error) {
+    return NextResponse.json(
+      { error: "Failed to save application to database" },
+      { status: 500 }
+    );
+  }
+
   if (application.customerId) {
     if (getOptionalEnv("SHOPIFY_SHOP_DOMAIN") && getOptionalEnv("SHOPIFY_ADMIN_ACCESS_TOKEN")) {
       try {
         await addCustomerTags(application.customerId, ["B2B_Pending"]);
         pendingTagApplied = true;
       } catch (error) {
-        return NextResponse.json(
-          {
-            error: error instanceof Error ? error.message : "Failed to apply pending customer tag",
-          },
-          { status: 502 },
-        );
+        // We saved it to DB, but failed to tag in Shopify
+        pendingTagWarning = error instanceof Error ? error.message : "Failed to apply pending customer tag";
       }
     } else {
       pendingTagWarning = "Shopify Admin credentials are not configured; pending tag was not applied.";
@@ -74,10 +91,7 @@ export async function POST(request: Request) {
 
   return NextResponse.json(
     {
-      application: {
-        ...application,
-        status: "PENDING",
-      },
+      application: dbApplication,
       pendingTagApplied,
       warning: pendingTagWarning,
     },
