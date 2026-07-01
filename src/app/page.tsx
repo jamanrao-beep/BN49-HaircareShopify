@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
-import { TrendingUp, Users, Copy, CheckCircle2, AlertTriangle, Package, Navigation, TrendingDown, Crown, Link as LinkIcon, BadgePercent } from "lucide-react";
+import { TrendingUp, Users, CheckCircle2, AlertTriangle, Package, Navigation, TrendingDown, Crown, BadgePercent } from "lucide-react";
 
 export default function Dashboard() {
   const [activeTab, setActiveTab] = useState<"influencer" | "distributor">("influencer");

@@ -1,36 +1,66 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# BN49 Partner Dashboard
 
-## Getting Started
+This is the Next.js dashboard prototype for BN49's B2B, influencer, and distributor workflows.
 
-First, run the development server:
+The current app is still a static UI prototype. The technical audit recommends evolving it into the custom Shopify app/backend layer for:
+
+- Shopify OAuth and authenticated admin sessions.
+- B2B application approvals and customer tagging.
+- Influencer code attribution and analytics.
+- Distributor order queues with region-based access.
+- Webhook processing, audit logs, and database-backed workflow state.
+
+## Local Setup
+
+Install dependencies:
+
+```bash
+npm install
+```
+
+Run the development server:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open `http://localhost:3000`.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Checks
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Run lint:
 
-## Learn More
+```bash
+npm run lint
+```
 
-To learn more about Next.js, take a look at the following resources:
+Run a production build:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```bash
+npm run build
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Environment
 
-## Deploy on Vercel
+Use the root `.env.example` as the source of required variables. For local Next.js development, copy the needed values into `b2b-dashboards/.env.local`.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+The app does not currently connect to Shopify or a database. When Phase 1 begins, add the Shopify app credentials, Admin API scopes, webhook secret, and database URL before enabling live routes.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Current API Contracts
+
+The app has no Postgres persistence yet, but these routes are wired for Shopify Admin API operations:
+
+- `POST /api/b2b/applications`
+- `POST /api/b2b/customers/[customerId]/approve`
+- `POST /api/b2b/customers/[customerId]/reject`
+- `POST /api/influencers/discounts`
+- `GET /api/influencers/orders?code=CODE`
+- `GET /api/distributor/orders?region=REGION`
+- `POST /api/distributor/orders/[orderId]/status`
+- `POST /api/webhooks/shopify`
+
+Internal mutation routes require `Authorization: Bearer $BN49_ADMIN_API_TOKEN`.
+
+## Important Boundary
+
+Liquid theme code can show B2B UI, but it cannot securely enforce approval, pricing, restricted product access, distributor RBAC, or webhook workflows. Those responsibilities belong in this app plus Shopify platform features such as Admin API, Functions, discounts, webhooks, and a durable database.
