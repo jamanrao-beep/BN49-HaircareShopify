@@ -4,6 +4,8 @@ import { addCustomerTags, removeCustomerTags } from "@/lib/shopify/customers";
 import { getOptionalEnv } from "@/lib/env";
 import Link from "next/link";
 
+export const dynamic = "force-dynamic";
+
 export default async function B2BApplicationDetailsPage({
   params,
 }: {

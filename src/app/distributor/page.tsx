@@ -1,6 +1,8 @@
 import { prisma } from "@/lib/db";
 import Link from "next/link";
 
+export const dynamic = "force-dynamic";
+
 export default async function DistributorDashboardPage() {
   // Fetch real order status records from Prisma
   const dbStatuses = await prisma.distributorOrderStatus.findMany({
