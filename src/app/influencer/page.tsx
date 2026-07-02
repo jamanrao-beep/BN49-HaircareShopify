@@ -5,7 +5,7 @@ import { redirect } from "next/navigation"
 import InfluencerDashboardClient from "./InfluencerDashboardClient"
 
 export default async function InfluencerDashboardPage() {
-  const cookieStore = cookies()
+  const cookieStore = await cookies()
   const sessionCookie = cookieStore.get('auth_session')?.value
   const session = await verifySession(sessionCookie)
 
@@ -32,7 +32,7 @@ export default async function InfluencerDashboardPage() {
   }
 
   const activeCode = influencer.codes.find(c => c.isActive)
-  const allAttributions = influencer.codes.flatMap(c => 
+  const allAttributions = influencer.codes.flatMap(c =>
     c.attributions.map(attr => ({
       ...attr,
       codeStr: c.code,
@@ -47,8 +47,8 @@ export default async function InfluencerDashboardPage() {
   const recentConversions = allAttributions.slice(0, 10).map(attr => {
     // simple time format
     const diffHours = Math.floor((Date.now() - attr.createdAt.getTime()) / (1000 * 60 * 60))
-    const timeStr = diffHours < 24 ? `${diffHours} hours ago` : `${Math.floor(diffHours/24)} days ago`
-    
+    const timeStr = diffHours < 24 ? `${diffHours} hours ago` : `${Math.floor(diffHours / 24)} days ago`
+
     const amount = Number(attr.subtotalAmount)
     return {
       id: attr.id,
