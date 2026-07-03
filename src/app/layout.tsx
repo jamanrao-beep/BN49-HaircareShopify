@@ -9,7 +9,7 @@ const inter = Inter({
 
 export const metadata: Metadata = {
   title: "BN49 Partner Dashboard",
-  description: "Influencer Analytics and Distributor Portal for BN49",
+  description: "Influencer Analytics and B2B Portal for BN49",
 };
 
 export default function RootLayout({
