@@ -40,10 +40,10 @@ export default async function AdminLayout({
         <div className="p-4 border-t border-[var(--border)] bg-white/30">
           <div className="flex items-center gap-3 px-3 py-2">
             <div className="w-8 h-8 rounded-full bg-[var(--color-brand-500)] flex items-center justify-center text-white font-bold shadow-sm">
-              {session.email?.charAt(0).toUpperCase()}
+              {String(session.email || 'A').charAt(0).toUpperCase()}
             </div>
             <div className="flex-1 overflow-hidden">
-              <p className="text-sm font-semibold truncate text-[var(--color-brand-900)]">{session.email}</p>
+              <p className="text-sm font-semibold truncate text-[var(--color-brand-900)]">{String(session.email || 'Admin')}</p>
               <p className="text-xs text-[var(--color-brand-600)]">Administrator</p>
             </div>
           </div>
