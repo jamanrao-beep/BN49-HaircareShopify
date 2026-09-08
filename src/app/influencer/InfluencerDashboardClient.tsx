@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 import { TrendingUp, Users, CheckCircle2, Crown, BadgePercent, TrendingDown } from "lucide-react";
 
@@ -20,10 +21,14 @@ type DashboardData = {
   salesData: Array<{
     name: string;
     sales: number;
+    commission: number;
+    records: number;
   }>;
 }
 
 export default function InfluencerDashboardClient({ data }: { data: DashboardData }) {
+  const [metric, setMetric] = useState<"sales" | "commission" | "records">("sales");
+
   return (
     <div className="min-h-screen bg-[var(--color-brand-50)] text-[var(--color-brand-900)] p-4 md:p-8 relative overflow-hidden">
       <div className="max-w-7xl mx-auto relative z-10 animate-fade-in-up">
@@ -66,22 +71,54 @@ export default function InfluencerDashboardClient({ data }: { data: DashboardDat
           {/* Main Content Area */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             {/* Chart Area */}
-            <div className="lg:col-span-2 glass rounded-2xl p-6 border border-[var(--border)] h-[400px] flex flex-col">
-              <h3 className="text-xl font-bold mb-4 text-[var(--color-brand-900)]">Sales Velocity (Last 30 Days)</h3>
+            <div className="lg:col-span-2 glass rounded-2xl p-6 border border-[var(--border)] h-[420px] flex flex-col">
+              <div className="flex flex-wrap justify-between items-center mb-4 gap-2">
+                <h3 className="text-xl font-bold text-[var(--color-brand-900)]">
+                  Performance Overview ({metric === 'sales' ? 'Sales ₹' : metric === 'commission' ? 'Commission ₹' : 'Orders'})
+                </h3>
+                <div className="inline-flex bg-[var(--color-brand-100)] p-1 rounded-lg text-xs font-semibold">
+                  <button
+                    onClick={() => setMetric("sales")}
+                    className={`px-3 py-1.5 rounded-md transition-all ${metric === 'sales' ? 'bg-[var(--color-brand-900)] text-white shadow-sm' : 'text-[var(--color-brand-600)]'}`}
+                  >
+                    Sales (₹)
+                  </button>
+                  <button
+                    onClick={() => setMetric("commission")}
+                    className={`px-3 py-1.5 rounded-md transition-all ${metric === 'commission' ? 'bg-[var(--color-brand-900)] text-white shadow-sm' : 'text-[var(--color-brand-600)]'}`}
+                  >
+                    Commission (₹)
+                  </button>
+                  <button
+                    onClick={() => setMetric("records")}
+                    className={`px-3 py-1.5 rounded-md transition-all ${metric === 'records' ? 'bg-[var(--color-brand-900)] text-white shadow-sm' : 'text-[var(--color-brand-600)]'}`}
+                  >
+                    Orders
+                  </button>
+                </div>
+              </div>
               <div className="flex-1 w-full min-h-0">
                 <ResponsiveContainer width="100%" height="100%">
                   <AreaChart data={data.salesData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
                     <defs>
-                      <linearGradient id="colorSales" x1="0" y1="0" x2="0" y2="1">
+                      <linearGradient id="colorMetric" x1="0" y1="0" x2="0" y2="1">
                         <stop offset="5%" stopColor="var(--color-brand-500)" stopOpacity={0.8}/>
                         <stop offset="95%" stopColor="var(--color-brand-500)" stopOpacity={0}/>
                       </linearGradient>
                     </defs>
                     <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(0,0,0,0.05)" />
                     <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: 'var(--color-brand-600)' }} />
-                    <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: 'var(--color-brand-600)' }} tickFormatter={(val) => `₹${val/1000}k`} />
-                    <Tooltip contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 20px rgba(0,0,0,0.1)' }} />
-                    <Area type="monotone" dataKey="sales" stroke="var(--color-brand-600)" strokeWidth={3} fillOpacity={1} fill="url(#colorSales)" />
+                    <YAxis
+                      axisLine={false}
+                      tickLine={false}
+                      tick={{ fontSize: 12, fill: 'var(--color-brand-600)' }}
+                      tickFormatter={(val) => metric === 'records' ? String(val) : `₹${val >= 1000 ? Math.round(val/1000) + 'k' : val}`}
+                    />
+                    <Tooltip
+                      formatter={(val: any) => [metric === 'records' ? `${val} Orders` : `₹${Number(val).toLocaleString()}`, metric === 'sales' ? 'Sales' : metric === 'commission' ? 'Commission' : 'Orders']}
+                      contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 20px rgba(0,0,0,0.1)' }}
+                    />
+                    <Area type="monotone" dataKey={metric} stroke="var(--color-brand-600)" strokeWidth={3} fillOpacity={1} fill="url(#colorMetric)" />
                   </AreaChart>
                 </ResponsiveContainer>
               </div>
