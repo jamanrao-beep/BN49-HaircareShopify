@@ -1,9 +1,18 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/db";
 import crypto from "crypto";
 import { getOptionalEnv } from "@/lib/env";
+import { attributeOrderToInfluencer } from "@/lib/shopify/influencerAttribution";
+import { prisma } from "@/lib/db";
 
 export const runtime = "nodejs";
+
+export async function GET() {
+  return NextResponse.json({
+    status: "ok",
+    message: "BN49 Shopify orders/create webhook endpoint is active and listening for events.",
+    timestamp: new Date().toISOString(),
+  });
+}
 
 export async function POST(request: Request) {
   try {
@@ -11,55 +20,57 @@ export async function POST(request: Request) {
     const hmacHeader = request.headers.get("x-shopify-hmac-sha256");
     const shopifySecret = getOptionalEnv("SHOPIFY_WEBHOOK_SECRET");
 
+    // Verify HMAC if provided by Shopify
     if (shopifySecret && hmacHeader) {
       const generatedHash = crypto
         .createHmac("sha256", shopifySecret)
         .update(rawBody, "utf8")
         .digest("base64");
-        
+
       if (generatedHash !== hmacHeader) {
+        console.warn("Unauthorized webhook request: Invalid HMAC signature");
         return NextResponse.json({ error: "Unauthorized: Invalid HMAC" }, { status: 401 });
       }
     }
 
-    const order = JSON.parse(rawBody);
-    
-    // Process discount codes to find influencer codes
-    if (order.discount_codes && Array.isArray(order.discount_codes)) {
-      for (const discount of order.discount_codes) {
-        const code = discount.code?.toUpperCase();
-        
-        if (code) {
-          const influencerCode = await prisma.influencerCode.findUnique({
-            where: { code },
-          });
-
-          if (influencerCode) {
-            await prisma.orderAttribution.upsert({
-              where: {
-                shopifyOrderId_influencerCodeId: {
-                  shopifyOrderId: order.id.toString(),
-                  influencerCodeId: influencerCode.id,
-                }
-              },
-              create: {
-                shopifyOrderId: order.id.toString(),
-                influencerCodeId: influencerCode.id,
-                subtotalAmount: Number(order.subtotal_price || 0),
-                currencyCode: order.currency || "USD",
-              },
-              update: {
-                subtotalAmount: Number(order.subtotal_price || 0),
-              }
-            });
-          }
-        }
-      }
+    if (!rawBody || rawBody.trim().length === 0) {
+      return NextResponse.json({ error: "Empty request body" }, { status: 400 });
     }
 
-    return NextResponse.json({ success: true }, { status: 200 });
+    const order = JSON.parse(rawBody);
+
+    // Save raw webhook event for audit trail
+    try {
+      await prisma.webhookEvent.create({
+        data: {
+          webhookId: request.headers.get("x-shopify-webhook-id") || `wh_${Date.now()}`,
+          topic: request.headers.get("x-shopify-topic") || "orders/create",
+          shop: request.headers.get("x-shopify-shop-domain") || "shopify",
+          payload: order,
+          processedAt: new Date(),
+        },
+      });
+    } catch (whErr) {
+      console.warn("WebhookEvent save skipped (non-fatal):", whErr);
+    }
+
+    // Run influencer attribution & metafield sync
+    const attributionResult = await attributeOrderToInfluencer(order);
+
+    return NextResponse.json({
+      success: true,
+      message: "Order processed successfully",
+      attribution: attributionResult,
+    }, { status: 200 });
+
   } catch (error) {
     console.error("Webhook processing error:", error);
-    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+    return NextResponse.json(
+      {
+        error: "Internal Server Error",
+        details: error instanceof Error ? error.message : String(error),
+      },
+      { status: 500 }
+    );
   }
 }
