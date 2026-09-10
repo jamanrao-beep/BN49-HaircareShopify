@@ -28,18 +28,89 @@ type DashboardData = {
 
 export default function InfluencerDashboardClient({ data }: { data: DashboardData }) {
   const [metric, setMetric] = useState<"sales" | "commission" | "records">("sales");
+  const [isSyncing, setIsSyncing] = useState(false);
+  const [syncMsg, setSyncMsg] = useState<string | null>(null);
+  const [toastVisible, setToastVisible] = useState(Boolean(data.recentConversions.length > 0));
+
+  const handleSync = async () => {
+    setIsSyncing(true);
+    setSyncMsg("Checking Shopify store for new orders...");
+    try {
+      const res = await fetch("/api/influencers/sync-orders", { method: "POST" });
+      const json = await res.json();
+      if (json.success) {
+        setSyncMsg(`✓ ${json.message}`);
+        setTimeout(() => {
+          window.location.reload();
+        }, 1500);
+      } else {
+        setSyncMsg(`Sync error: ${json.error}`);
+      }
+    } catch (e) {
+      setSyncMsg("Network error contacting Shopify API");
+    } finally {
+      setIsSyncing(false);
+    }
+  };
+
+  const latestSale = data.recentConversions[0];
 
   return (
     <div className="min-h-screen bg-[var(--color-brand-50)] text-[var(--color-brand-900)] p-4 md:p-8 relative overflow-hidden">
+      {/* Floating Celebration Toast Popup */}
+      {toastVisible && latestSale && (
+        <div className="fixed bottom-6 right-6 z-50 max-w-md bg-white border-2 border-[var(--color-brand-500)] rounded-2xl shadow-2xl p-5 animate-fade-in-up">
+          <div className="flex justify-between items-start gap-3">
+            <div className="flex items-start gap-3">
+              <span className="text-3xl">🎉</span>
+              <div>
+                <h4 className="font-bold text-base text-[var(--color-brand-900)]">New Sale Attributed!</h4>
+                <p className="text-xs text-[var(--color-brand-600)] mt-1">
+                  Order <strong>{latestSale.shopifyOrderId}</strong> generated <strong>₹{latestSale.amount.toLocaleString()}</strong>.
+                </p>
+                <p className="text-xs font-bold text-green-600 mt-0.5">
+                  +₹{latestSale.comm.toLocaleString()} added to your commission!
+                </p>
+              </div>
+            </div>
+            <button
+              onClick={() => setToastVisible(false)}
+              className="text-gray-400 hover:text-gray-600 text-lg leading-none cursor-pointer"
+            >
+              &times;
+            </button>
+          </div>
+        </div>
+      )}
+
       <div className="max-w-7xl mx-auto relative z-10 animate-fade-in-up">
-        <header className="mb-12">
-          <h1 className="text-4xl md:text-5xl font-bold tracking-tight text-[var(--color-brand-900)] mb-2 flex items-center gap-3">
-            Welcome, {data.influencerName} <Crown className="w-10 h-10 text-[var(--color-brand-500)]" />
-          </h1>
-          <p className="text-lg text-[var(--color-brand-600)]">
-            Your Influencer Analytics Portal
-          </p>
+        <header className="mb-12 flex flex-wrap justify-between items-center gap-4">
+          <div>
+            <h1 className="text-4xl md:text-5xl font-bold tracking-tight text-[var(--color-brand-900)] mb-2 flex items-center gap-3">
+              Welcome, {data.influencerName} <Crown className="w-10 h-10 text-[var(--color-brand-500)]" />
+            </h1>
+            <p className="text-lg text-[var(--color-brand-600)]">
+              Your Influencer Analytics Portal
+            </p>
+          </div>
+          <div className="flex items-center gap-3">
+            <button
+              onClick={handleSync}
+              disabled={isSyncing}
+              className="inline-flex items-center gap-2 bg-[var(--color-brand-900)] text-white hover:bg-[var(--color-brand-800)] px-4 py-2.5 rounded-xl font-semibold text-sm transition-all shadow-sm cursor-pointer disabled:opacity-50"
+            >
+              <CheckCircle2 className={`w-4 h-4 ${isSyncing ? "animate-spin" : "text-yellow-400"}`} />
+              {isSyncing ? "Syncing..." : "Sync Shopify Orders"}
+            </button>
+          </div>
         </header>
+
+        {syncMsg && (
+          <div className="mb-6 p-4 rounded-xl bg-amber-50 border border-amber-200 text-amber-900 text-sm font-medium flex items-center justify-between">
+            <span>{syncMsg}</span>
+            <button onClick={() => setSyncMsg(null)} className="text-amber-700 hover:text-amber-900 font-bold">&times;</button>
+          </div>
+        )}
 
         <div className="animate-fade-in-up delay-100 space-y-8">
           {/* Tier Progression */}
