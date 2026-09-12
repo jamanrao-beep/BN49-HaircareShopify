@@ -79,15 +79,7 @@ export default async function InfluencerDashboardPage() {
     }
   }
 
-  const hasRealQuarterSales = quarters.some(q => q.sales > 0);
-  const salesData = hasRealQuarterSales
-    ? quarters
-    : [
-        { name: "Quarter 1", sales: 35000, commission: 5250, records: 14 },
-        { name: "Quarter 2", sales: 72000, commission: 10800, records: 28 },
-        { name: "Quarter 3", sales: 145000, commission: 21750, records: 58 },
-        { name: "Quarter 4", sales: 98000, commission: 14700, records: 39 },
-      ];
+  const salesData = quarters;
 
   const dashboardData = {
     influencerName: influencer.name,
