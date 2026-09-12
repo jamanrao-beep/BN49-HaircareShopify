@@ -66,10 +66,10 @@ export default function InfluencerDashboardClient({ data }: { data: DashboardDat
               <div>
                 <h4 className="font-bold text-base text-[var(--color-brand-900)]">New Sale Attributed!</h4>
                 <p className="text-xs text-[var(--color-brand-600)] mt-1">
-                  Order <strong>{latestSale.shopifyOrderId}</strong> generated <strong>₹{latestSale.amount.toLocaleString()}</strong>.
+                  Order <strong>{latestSale.shopifyOrderId}</strong> generated <strong>£{latestSale.amount.toLocaleString()}</strong>.
                 </p>
                 <p className="text-xs font-bold text-green-600 mt-0.5">
-                  +₹{latestSale.comm.toLocaleString()} added to your commission!
+                  +£{latestSale.comm.toLocaleString()} added to your commission!
                 </p>
               </div>
             </div>
@@ -123,7 +123,7 @@ export default function InfluencerDashboardClient({ data }: { data: DashboardDat
                 <p className="text-sm text-[var(--color-brand-600)]">Currently earning 15% commission</p>
               </div>
               <div className="text-right">
-                <p className="text-sm font-semibold text-[var(--color-brand-900)]">₹{data.totalSales.toLocaleString()} / ₹5,00,000</p>
+                <p className="text-sm font-semibold text-[var(--color-brand-900)]">£{data.totalSales.toLocaleString()} / £500,000</p>
                 <p className="text-xs text-[var(--color-brand-600)]">to Platinum (20% commission)</p>
               </div>
             </div>
@@ -134,8 +134,8 @@ export default function InfluencerDashboardClient({ data }: { data: DashboardDat
 
           {/* Metrics Row */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <MetricCard icon={<TrendingUp />} title="Total Sales Generated" value={`₹${data.totalSales.toLocaleString()}`} subValue="Lifetime sales" trend="up" />
-            <MetricCard icon={<BadgePercent />} title="Commission Earned" value={`₹${data.commissionEarned.toLocaleString()}`} subValue="Total payout value" trend="neutral" />
+            <MetricCard icon={<TrendingUp />} title="Total Sales Generated" value={`£${data.totalSales.toLocaleString()}`} subValue="Lifetime sales" trend="up" />
+            <MetricCard icon={<BadgePercent />} title="Commission Earned" value={`£${data.commissionEarned.toLocaleString()}`} subValue="Total payout value" trend="neutral" />
             <MetricCard icon={<Users />} title="Coupon Uses" value={data.couponUses.toString()} subValue={`Active Code: ${data.activeCode}`} trend="up" />
           </div>
 
@@ -145,20 +145,20 @@ export default function InfluencerDashboardClient({ data }: { data: DashboardDat
             <div className="lg:col-span-2 glass rounded-2xl p-6 border border-[var(--border)] h-[420px] flex flex-col">
               <div className="flex flex-wrap justify-between items-center mb-4 gap-2">
                 <h3 className="text-xl font-bold text-[var(--color-brand-900)]">
-                  Performance Overview ({metric === 'sales' ? 'Sales ₹' : metric === 'commission' ? 'Commission ₹' : 'Orders'})
+                  Performance Overview ({metric === 'sales' ? 'Sales £' : metric === 'commission' ? 'Commission £' : 'Orders'})
                 </h3>
                 <div className="inline-flex bg-[var(--color-brand-100)] p-1 rounded-lg text-xs font-semibold">
                   <button
                     onClick={() => setMetric("sales")}
                     className={`px-3 py-1.5 rounded-md transition-all ${metric === 'sales' ? 'bg-[var(--color-brand-900)] text-white shadow-sm' : 'text-[var(--color-brand-600)]'}`}
                   >
-                    Sales (₹)
+                    Sales (£)
                   </button>
                   <button
                     onClick={() => setMetric("commission")}
                     className={`px-3 py-1.5 rounded-md transition-all ${metric === 'commission' ? 'bg-[var(--color-brand-900)] text-white shadow-sm' : 'text-[var(--color-brand-600)]'}`}
                   >
-                    Commission (₹)
+                    Commission (£)
                   </button>
                   <button
                     onClick={() => setMetric("records")}
@@ -183,10 +183,10 @@ export default function InfluencerDashboardClient({ data }: { data: DashboardDat
                       axisLine={false}
                       tickLine={false}
                       tick={{ fontSize: 12, fill: 'var(--color-brand-600)' }}
-                      tickFormatter={(val) => metric === 'records' ? String(val) : `₹${val >= 1000 ? Math.round(val/1000) + 'k' : val}`}
+                      tickFormatter={(val) => metric === 'records' ? String(val) : `£${val >= 1000 ? Math.round(val/1000) + 'k' : val}`}
                     />
                     <Tooltip
-                      formatter={(val: any) => [metric === 'records' ? `${val} Orders` : `₹${Number(val).toLocaleString()}`, metric === 'sales' ? 'Sales' : metric === 'commission' ? 'Commission' : 'Orders']}
+                      formatter={(val: any) => [metric === 'records' ? `${val} Orders` : `£${Number(val).toLocaleString()}`, metric === 'sales' ? 'Sales' : metric === 'commission' ? 'Commission' : 'Orders']}
                       contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 20px rgba(0,0,0,0.1)' }}
                     />
                     <Area type="monotone" dataKey={metric} stroke="var(--color-brand-600)" strokeWidth={3} fillOpacity={1} fill="url(#colorMetric)" />
@@ -213,8 +213,8 @@ export default function InfluencerDashboardClient({ data }: { data: DashboardDat
                         <p className="text-xs text-[var(--color-brand-600)]">{conv.time}</p>
                       </div>
                       <div className="text-right">
-                        <p className="font-bold text-[var(--color-brand-900)]">₹{conv.amount}</p>
-                        <p className="text-xs text-green-600 font-semibold">+₹{conv.comm}</p>
+                        <p className="font-bold text-[var(--color-brand-900)]">£{conv.amount}</p>
+                        <p className="text-xs text-green-600 font-semibold">+£{conv.comm}</p>
                       </div>
                     </div>
                   ))}

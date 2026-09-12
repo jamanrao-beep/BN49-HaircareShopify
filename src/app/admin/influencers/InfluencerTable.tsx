@@ -183,7 +183,7 @@ export default function InfluencerTable({ initialInfluencers }: { initialInfluen
                     </div>
                   </td>
                   <td className="px-5 py-4 font-medium text-gray-700">{totalOrders}</td>
-                  <td className="px-5 py-4 font-semibold text-green-700">₹{totalRevenue.toFixed(2)}</td>
+                  <td className="px-5 py-4 font-semibold text-green-700">£{totalRevenue.toFixed(2)}</td>
                   <td className="px-5 py-4 text-right">
                     <button
                       onClick={() => {
