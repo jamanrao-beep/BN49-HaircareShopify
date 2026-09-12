@@ -353,7 +353,7 @@ export async function attributeOrderToInfluencer(order: ShopifyOrderPayload) {
         code: normalizedCode,
         amount: orderAmount,
         commission: earnedCommission,
-        message: `🎉 New Sale! Order ${orderName} generated £${orderAmount.toLocaleString()}. You earned +£${earnedCommission.toLocaleString()} commission!`,
+        message: `🎉 New Sale! Order ${orderName} generated ₹${orderAmount.toLocaleString("en-IN")}. You earned +₹${earnedCommission.toLocaleString("en-IN")} commission!`,
         timestamp: new Date().toISOString(),
       };
 
@@ -480,7 +480,7 @@ export async function attributeOrderToInfluencer(order: ShopifyOrderPayload) {
       orderName,
       orderAmount,
       commissionEarned: earnedCommission,
-      currency: "£",
+      currency: "₹",
       totalSales: newTotalSales,
       totalCommission: newCommission,
       timestamp: orderDateStr,

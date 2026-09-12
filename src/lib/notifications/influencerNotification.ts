@@ -32,7 +32,7 @@ export interface NotificationDispatchResult {
  * Builds standard human-readable text message for the influencer
  */
 export function buildInfluencerSaleTextMessage(payload: InfluencerSaleNotificationPayload): string {
-  const currency = payload.currency || "£";
+  const currency = payload.currency || "₹";
   const formattedAmount = `${currency}${payload.orderAmount.toLocaleString("en-IN")}`;
   const formattedCommission = `${currency}${payload.commissionEarned.toLocaleString("en-IN")}`;
   
@@ -55,7 +55,7 @@ export async function dispatchInfluencerNotification(
   console.log("🔔 INFLUENCER SALE NOTIFICATION TRIGGERED");
   console.log(`Influencer: ${payload.influencerName} (${payload.influencerEmail || "No Email"})`);
   console.log(`Code: ${payload.code} | Order: ${payload.orderName}`);
-  console.log(`Sale Amount: £${payload.orderAmount} | Commission: +£${payload.commissionEarned}`);
+  console.log(`Sale Amount: ₹${payload.orderAmount} | Commission: +₹${payload.commissionEarned}`);
   console.log(`Text Notification: "${textMessage}"`);
   console.log("=================================================");
 
