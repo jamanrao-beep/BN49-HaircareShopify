@@ -376,6 +376,7 @@ export async function attributeOrderToInfluencer(order: ShopifyOrderPayload) {
         { namespace: "custom", key: qKeyComm, value: newQComm.toString(), type: "number_integer" },
         { namespace: "influencer", key: qKeyComm, value: newQComm.toString(), type: "number_integer" },
         { namespace: "custom", key: qKeyRec, value: newQRec.toString(), type: "number_integer" },
+        { namespace: "influencer", key: qKeyRec, value: newQRec.toString(), type: "number_integer" },
 
         // Recent Conversions JSON
         { namespace: "influencer", key: "recent_conversions", value: JSON.stringify(updatedConversions), type: "single_line_text_field" },
